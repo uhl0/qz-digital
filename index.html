@@ -3,73 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QZ Digital</title>
+<title>Painel Financeiro - QZ Digital</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body {
-margin: 0;
 font-family: Arial, sans-serif;
-background-color: #0f0f0f;
+background: #0f0f0f;
 color: white;
 text-align: center;
-}
-
-header {
-background: linear-gradient(90deg, #00c6ff, #0072ff);
-padding: 40px 20px;
+margin: 0;
 }
 
 h1 {
+background: linear-gradient(90deg,#00c6ff,#0072ff);
+padding: 20px;
 margin: 0;
-font-size: 40px;
 }
 
-p {
+.container {
+padding: 20px;
+}
+
+input, select, button {
+padding: 10px;
+margin: 5px;
+border-radius: 5px;
+border: none;
+}
+
+button {
+background: #00c6ff;
+font-weight: bold;
+cursor: pointer;
+}
+
+.resumo {
+margin-top: 20px;
 font-size: 18px;
 }
 
-.btn {
-display: inline-block;
-margin-top: 20px;
-padding: 12px 25px;
-background-color: #00c6ff;
-color: black;
-text-decoration: none;
-border-radius: 6px;
-font-weight: bold;
-}
-
-.section {
-padding: 60px 20px;
-}
-
-footer {
-background-color: #111;
-padding: 20px;
-font-size: 14px;
+canvas {
+margin-top: 30px;
+max-width: 600px;
 }
 </style>
 </head>
 <body>
 
-<header>
-<h1>QZ Digital</h1>
-<p>Transformando ideias em presença digital</p>
-<a href="#contato" class="btn">Fale Conosco</a>
-</header>
+<h1>Painel Financeiro</h1>
 
-<section class="section">
-<h2>Sobre Nós</h2>
-<p>Somos especialistas em criação de sites modernos, rápidos e profissionais.</p>
-</section>
+<div class="container">
 
-<section class="section" id="contato">
-<h2>Contato</h2>
-<p>Email: contato@qzdigital.com</p>
-</section>
+<h2>Adicionar Rendimento</h2>
+<input type="number" id="rendimentoValor" placeholder="Valor">
+<button onclick="adicionarRendimento()">Adicionar</button>
 
-<footer>
-© 2025 QZ Digital - Todos os direitos reservados
-</footer>
+<h2>Adicionar Despesa</h2>
+<input type="number" id="despesaValor" placeholder="Valor">
+<select id="categoria">
+<option>Alimentação</option>
+<option>Transporte</option>
+<option>Moradia</option>
+<option>Investimentos</option>
+<option>Outros</option>
+</select>
+<button onclick="adicionarDespesa()">Adicionar</button>
+
+<div class="resumo">
+<p>Total Rendimentos: R$ <span id="totalRendimentos">0</span></p>
+<p>Total Despesas: R$ <span id="totalDespesas">0</span></p>
+<p>Saldo: R$ <span id="saldo">0</span></p>
+<p>Porcentagem Gasta: <span id="porcentagem">0</span>%</p>
+</div>
+
+<canvas id="grafico"></canvas>
+
+</div>
+
+<script>
+let totalRendimentos = 0;
+let totalDespesas = 0;
+let categorias = {
+"Alimentação": 0,
+"Transporte": 0,
+"Moradia": 0,
+"Investimentos": 0,
+"Outros": 0
+};
+
+const ctx = document.getElementById('grafico');
+const grafico = new Chart(ctx, {
+type: 'pie',
+data: {
+labels: Object.keys(categorias),
+datasets: [{
+data: Object.values(categorias)
+}]
+}
+});
+
+function atualizarTela() {
+document.getElementById("totalRendimentos").innerText = totalRendimentos.toFixed(2);
+document.getElementById("totalDespesas").innerText = totalDespesas.toFixed(2);
+document.getElementById("saldo").innerText = (totalRendimentos - totalDespesas).toFixed(2);
+
+let porcentagem = totalRendimentos > 0 ?
+(totalDespesas / totalRendimentos) * 100 : 0;
+
+document.getElementById("porcentagem").innerText = porcentagem.toFixed(1);
+
+grafico.data.datasets[0].data = Object.values(categorias);
+grafico.update();
+}
+
+function adicionarRendimento() {
+let valor = parseFloat(document.getElementById("rendimentoValor").value);
+if (!isNaN(valor)) {
+totalRendimentos += valor;
+atualizarTela();
+}
+}
+
+function adicionarDespesa() {
+let valor = parseFloat(document.getElementById("despesaValor").value);
+let categoria = document.getElementById("categoria").value;
+
+if (!isNaN(valor)) {
+totalDespesas += valor;
+categorias[categoria] += valor;
+atualizarTela();
+}
+}
+</script>
 
 </body>
 </html>
